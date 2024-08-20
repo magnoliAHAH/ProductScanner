@@ -2,9 +2,29 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 
+import "react-native-gesture-handler";
+import {BottomSheetModal, BottomSheetModalProvider} from "@gorhom/bottom-sheet"
+import { useRef } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+
+
 export default function App() {
+
+  const bottomSheetModalRef = useRef(null);
+  
+  const snapPoints = ["25%", "90%"];
+
+  function handlePresentModal() {
+    bottomSheetModalRef.current?.present();
+  }
+
+
+
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
+
+  const [scanType, setScanType] = useState(null);
+  const [scanData, setScanData] = useState(null);
 
   useEffect(() => {
     const getCameraPermissions = async () => {
@@ -16,8 +36,10 @@ export default function App() {
   }, []);
 
   const handleBarCodeScanned = ({ type, data }) => {
+    setScanType(type);
+    setScanData(data);
     setScanned(true);
-    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+    handlePresentModal();
   };
 
   if (hasPermission === null) {
@@ -28,18 +50,38 @@ export default function App() {
   }
 
   return (
-    <View style={styles.container}>
-      <CameraView
-        onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
-        barcodeScannerSettings={{
-          barcodeTypes: ["qr", "pdf417", "codabar", "aztec", "code128", "code39" , "code93", "datamatrix", "ean13", "ean8", "itf14", "upc_a", "upc_e"],
-        }}
-        style={StyleSheet.absoluteFillObject}
-      />
-      {scanned && (
-        <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
-      )}
-    </View>
+    <GestureHandlerRootView>
+      <BottomSheetModalProvider>
+        <View style={styles.container}>
+
+        <BottomSheetModal
+            ref={bottomSheetModalRef}
+            index={0}
+            snapPoints={snapPoints}
+          >
+            <View>
+              {scanType && scanData ? (
+                <Text>Тип: {scanType}, Данные: {scanData}</Text>
+              ) : (
+                <Text>Сканирование...</Text>
+              )}
+            </View>
+            
+          </BottomSheetModal>
+
+          <CameraView
+            onBarcodeScanned={scanned ? undefined : handleBarCodeScanned}
+            barcodeScannerSettings={{
+              barcodeTypes: ["qr", "pdf417", "codabar", "aztec", "code128", "code39" , "code93", "datamatrix", "ean13", "ean8", "itf14", "upc_a", "upc_e"],
+            }}
+            style={StyleSheet.absoluteFillObject}
+          />
+          {scanned && (
+            <Button title={"Tap to Scan Again"} onPress={() => setScanned(false)} />
+          )}
+        </View>
+      </BottomSheetModalProvider>
+    </GestureHandlerRootView>
   );
 }
 
