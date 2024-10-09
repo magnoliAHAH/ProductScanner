@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Text, View, StyleSheet, Button } from "react-native";
 import { CameraView, Camera } from "expo-camera";
 
+
 import "react-native-gesture-handler";
 import {BottomSheetModal, BottomSheetModalProvider} from "@gorhom/bottom-sheet"
 import { useRef } from "react";
@@ -17,8 +18,6 @@ export default function App() {
   function handlePresentModal() {
     bottomSheetModalRef.current?.present();
   }
-
-
 
   const [hasPermission, setHasPermission] = useState(null);
   const [scanned, setScanned] = useState(false);
@@ -59,12 +58,29 @@ export default function App() {
             index={0}
             snapPoints={snapPoints}
           >
-            <View>
-              {scanType && scanData ? (
+            <View style={{borderWidth: 1, borderColor: "green", flexDirection: 'row', marginTop: 20, marginHorizontal: 10,}}>
+
+              <View style={{borderWidth: 1, borderColor: "blue", margin: 3,}}>
+                <Text>Изображение</Text>
+              </View>
+
+              <View style={{borderWidth: 1, borderColor: "yellow", flex: 1,}}>
+                <View style={{borderWidth: 1, borderColor: "orange"}}>
+                  <Text>Название продукта{'\n'} {scanData} </Text>
+                </View>
+                <View style={{borderWidth: 1, borderColor: "grey"}}>
+                  <Text>Тип продукта</Text>
+                </View>
+                <View style={{borderWidth: 1, borderColor: "red"}}>
+                  <Text style={{color: 'red'}}>Оценка</Text>
+                </View>
+              </View>
+
+              {/* {scanType && scanData ? (
                 <Text>Тип: {scanType}, Данные: {scanData}</Text>
               ) : (
-                <Text>Сканирование...</Text>
-              )}
+                <Text>Данные не получены</Text>
+              )} */}
             </View>
             
           </BottomSheetModal>
